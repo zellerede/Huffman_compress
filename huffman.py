@@ -2,6 +2,8 @@
 import bisect # to realize SortedList
 from collections import OrderedDict as Dict
 
+from my_bitarray import Bitarray
+
 # Reads the text, evaluates the characters it contains, counting each.
 # This will give each used character a  weight.
 # According this weighting, calculates Huffman codes for characters,
@@ -78,7 +80,7 @@ class Forest(list):
 	def find_leaves(self):
 		for root in self:
 			for leaf, path in root.walk:
-				print leaf, path
+				print leaf, Bitarray(path)
 
 # incoming parameter _letters, say:
 _letters = {'a':15,'b':4,'c':5,'d':8,'e':2}
