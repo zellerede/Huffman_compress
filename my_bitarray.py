@@ -51,11 +51,17 @@ class Bitarray(object):
 
 	def __setitem__(self, idx, value):
 		self._dice(idx, self._setitems_, self._setitem_, value)
+	
+	def __eq__(self, other):
+		return (self.bytes == other.bytes) and (self.len == other.len)
+	
+	def __nonzero__(self):
+		return bool(self.len)
 
 	def pop(self, idx=-1):
-		if self.length==0:
-			raise IndexError("pop from empty bitarray")
-		idx = self._handle_negatives(idx)
+		if self.len==0:
+			raise IndexError("pop from empty Bitarray")
+		idx = self._handle_negative(idx)
 		value = self[idx]
 		before = self[:idx]
 		after = self[(idx+1):]
@@ -121,7 +127,6 @@ class Bitarray(object):
 	
 	def _setitems_(self, rng, valarray):
 		raise NotImplementedError()
-
 
 # Bitarray constants
 _0 = Bitarray(length=1)
