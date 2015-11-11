@@ -1,5 +1,5 @@
 
-from my_bitarray import Bitarray
+from my_bitarray import Bitarray, BIT
 from trees import Node, Forest
 
 # Reads the text, evaluates the characters it contains, counting each.
@@ -15,10 +15,9 @@ class HuffmanForest(Forest):
 		for x,w in weights.items():
 			self.add( Node(x,w) )
 
-	def grow(self):
+	def grow(self, prints=False):
 		while self.bloom():
-			print self
-			pass
+			if prints:  print self
 
 	def bloom(self):
 		" the atomic step of forest growing up to a binary tree "
@@ -32,16 +31,28 @@ class HuffmanForest(Forest):
 		for root, path, leaf in self.leaves:
 			print leaf, Bitarray(path)
 
+###########################################################################
+#
+# user interface:
+#   getCodes( dict of letters:weights )
+#    - calculates the Huffman codes by building a Huffman tree on given
+#      weighted letter set
+#   readBits( Bitarray )
+#    - decodes the given bitarray according to the module variable 'codes'
+#   readOne( Bitarray )
+#    - reads one symbol according to the module variable 'codes'
+#
+###########################################################################
 
-# incoming parameter _letters, say:
-_letters = {'a':15,'b':4,'c':5,'d':8,'e':2}
+codes = {'0':BIT[0], '1':BIT[1]}
 
-f = HuffmanForest( _letters )
-f.grow()
-print
-f.printLeaves()
-
-codes = {leaf.letters:Bitarray(path)  for _,path,leaf in f.leaves}
+def getCodes(weightedLetterSet):
+	global codes
+	f = HuffmanForest( weightedLetterSet )
+	f.grow()
+	codes = { leaf.letters:Bitarray(path)
+	             for _,path,leaf in f.leaves }
+	return codes
 
 def readBits(bits):
 	decoded = ''
@@ -63,6 +74,3 @@ def readOne(bits):
 	else:
 		[letter] = found # should contain 1 element exactly
 		return letter
-
-s=Bitarray([0,1,1,0,1,1,1,0,1,0,1,1,1,1,0,0,0,1,1,0])
-readBits(s)
