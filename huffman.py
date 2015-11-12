@@ -1,6 +1,9 @@
 
+from collections import defaultdict
+
 from my_bitarray import Bitarray, BIT
 from trees import Node, Forest
+
 
 # Reads the text, evaluates the characters it contains, counting each.
 # This will give each used character a  weight.
@@ -24,8 +27,12 @@ class HuffmanForest(Forest):
 		if len(self)<2:
 			return
 		self.add( Node( 
-		            parentOf=[self.pop(0), self.pop(0)] ) )
+		            parentOf=[self.popHead, self.popHead] ) )
 		return True
+	
+	@property
+	def popHead(self):
+		return self.pop(0)
 	
 	def printLeaves(self):
 		for root, path, leaf in self.leaves:
@@ -66,7 +73,7 @@ def readOne(bits):
 	found = None
 	try:
 		while not found:
-			reading.append( bits.pop(0) )
+			reading.append( bits.popHead )
 			found = [letter for letter,target in codes.items() 
 			                if target==reading]
 	except IndexError:
@@ -74,3 +81,14 @@ def readOne(bits):
 	else:
 		[letter] = found # should contain 1 element exactly
 		return letter
+
+
+#########################################
+#
+def countLetters(text):
+#########################################
+	# later to handle looong bytestreams
+	letters = defaultdict(lambda:0)
+	for c in text:
+		letters[c] += 1
+	return letters

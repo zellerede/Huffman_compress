@@ -69,17 +69,24 @@ class Bitarray(object):
 		self._buildByBytes(new.bytes, new.len)
 		return value
 
+	@property
+	def popHead(self):
+		return self.pop(0)
+
 	def _buildByBytes(self, bytes, length):
 		self.bytes = bytearray(bytes)
 		if length is None:
 			length = len(bytes) * 8
 		self.len = length
-		byteLen = length/8 + (1 if length%8 else 0)
+		n, bit = _divide(length)
+		byteLen = n + (1 if bit else 0)
 		diff = byteLen - len(self.bytes)
 		if diff > 0:
 			self.bytes += bytearray([0]*diff)
 		elif diff < 0:
 			self.bytes = self.bytes[:byteLen]
+			if bit: 
+				self.bytes[-1] &= (_BIT_PLACES[bit]-1)
 
 	def _buildByBits(self, bits):
 		self._buildByBytes([],0)
@@ -128,7 +135,30 @@ class Bitarray(object):
 	def _setitems_(self, rng, valarray):
 		raise NotImplementedError()
 
+	def writeBinary(self, filename):
+		n, bit = _divide(self.len +3) # 3 bits represent the remainder mod 8
+		content = Bitarray(bytes=[bit], length=3) + self
+		with open(filename, 'w') as f:
+			f.write(content.bytes)
+
+	@staticmethod
+	def readBinary(filename):
+		# later to handle looong bytestreams
+		with open(filename) as f:
+			content = bytearray(f.read())
+		len8 = len(content)
+		bits = Bitarray(content)
+		len7 = bits.popHead + 2*bits.popHead + 4*bits.popHead
+		if len7: 
+			len8 -= 1
+		bits.len = 8*len8 + len7 -3
+		return bits
+	
+
 # Bitarray constants
 _0 = Bitarray(length=1)
 _1 = Bitarray(bytes=[1],length=1)
 BIT = [_0, _1]
+
+
+	
