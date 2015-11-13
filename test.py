@@ -28,9 +28,22 @@ class TestHuffman(unittest.TestCase):
 		for x,weight in letters.items():
 			print "%r:%s\t\t" %(x,weight),
 		print
-		H.getCodes(letters)
+	
+	def test_encode(self):
+		letters = H.countLetters(text)
+		print H.getCodes(letters)
 		encoded = sum([H.codes[x] for x in text], H.Bitarray())
 		print encoded
+		print
+	
+	def test_decode_text(self, timeout=10):
+		encoded = H.encode(text)
+		decoded = H.decode(encoded)
+		print
+		print decoded
+		print
+		self.assertEqual(decoded, text)
+	
 
 text = '''
 The Zen of Python, by Tim Peters

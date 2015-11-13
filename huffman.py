@@ -48,6 +48,9 @@ class HuffmanForest(Forest):
 #    - decodes the given bitarray according to the module variable 'codes'
 #   readOne( Bitarray )
 #    - reads one symbol according to the module variable 'codes'
+#   decode = readBits
+#   encode( text )
+#    - encodes the text to Bitarray using module's current 'codes'
 #
 ###########################################################################
 
@@ -68,6 +71,9 @@ def readBits(bits):
 	return decoded
 
 def readOne(bits):
+	if bits.len==0:
+		# raise Exception('No bits to read.')
+		return
 	remains = bits[:]
 	reading = Bitarray()
 	found = None
@@ -81,6 +87,27 @@ def readOne(bits):
 	else:
 		[letter] = found # should contain 1 element exactly
 		return letter
+
+decode = readBits
+
+def encode(text, weights=None, keepCodes=False):
+	'''
+	   If keepCodes==True, the current 'codes' is preserved, and the
+	   used codes are returned together with the encoded value:
+	     return (encoded, codes)
+	   Otherwise module's variable 'codes' is replaced and only 
+	   the encoded Bitarray is returned.'''
+	global codes
+	if keepCodes:
+		codes_saved = codes.copy()
+	if weights is None:
+		weights = countLetters(text)
+		getCodes(weights)
+	encoded = sum([codes[x] for x in text], Bitarray.EMPTY)
+	if keepCodes:
+		encoded = (encoded, codes)
+		codes = codes_saved
+	return encoded
 
 
 #########################################

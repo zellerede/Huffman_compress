@@ -164,12 +164,12 @@ class Bitarray(object):
 			len8 -= 1
 		bits.len = 8*len8 + len7 -3
 		return bits
-	
 
 # Bitarray constants
 _0 = Bitarray(length=1)
 _1 = Bitarray(bytes=[1],length=1)
 BIT = [_0, _1]
 
+Bitarray.EMPTY = Bitarray()
 
 	
