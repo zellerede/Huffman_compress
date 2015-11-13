@@ -1,4 +1,6 @@
 
+from neighbors import neighbors
+
 _BIT_PLACES = [1<<n for n in range(8)]
 _CLEAR_BITS = [255-bitPlace for bitPlace in _BIT_PLACES]
 
@@ -31,17 +33,16 @@ class Bitarray(object):
 		shifted = other._shifted(shift)
 		if shift:
 			bytes[-1] &= (_BIT_PLACES[shift]-1)
-			bytes[-1] |= shifted[0]
+			bytes[-1] |= shifted.pop(0)
 		bytes += shifted
 		return Bitarray(bytes=bytes, length = self.len + other.len)
 	
 	def append(self, bit=0):
-		#self += BIT[ 1 if bit else 0 ] # doesn't work because self stands on lhs
 		if (self.len % 8) == 0:
 			self.bytes.append(0)
 		last = self.len
 		self.len += 1
-		self[last] = bit
+		self[last] = bit # will call _setitem_(self, last, bit)
 	
 	def __len__(self):
 		return self.len
@@ -98,8 +99,14 @@ class Bitarray(object):
 		bits %= 8
 		if bits==0: 
 			return self.bytes[:]
-		bytes = [byte <<bits for byte in self.bytes]
-		bytes.append(self.bytes[-1] >>(8-bits))
+
+		_left = lambda byte: byte >> (8-bits)
+		_right = lambda byte: (byte << bits) & 255
+			
+		bytes = [ _right(self.bytes[0]) ]
+		bytes += [ _left(byte1) | _right(byte2)
+		           for byte1, byte2  in neighbors(self.bytes)]
+		bytes += [ _left(self.bytes[-1]) ]
 		return bytearray(bytes)
 
 	def _handle_negative(self, idx):
@@ -118,8 +125,12 @@ class Bitarray(object):
 
 	def _getitem_(self, idx):
 		n, bit = _divide(idx)
-		return (1 if (self.bytes[n] & _BIT_PLACES[bit])
-		          else 0)
+		try:
+			return (1 if (self.bytes[n] & _BIT_PLACES[bit])
+			          else 0)
+		except IndexError as e:
+			e.args = ('Bitarray index %s out of range' % idx, )
+			raise e
 	def _getitems_(self, rng):
 		# later should be optimized -> to get on byte level
 		req_bits = [self[ie]  for ie in rng]
@@ -127,7 +138,7 @@ class Bitarray(object):
 
 	def _setitem_(self, idx, value):
 		n, bit = _divide(idx)
-		if value:
+		if value and value!='0':
 			self.bytes[n] |= _BIT_PLACES[bit]
 		else:
 			self.bytes[n] &= _CLEAR_BITS[bit]

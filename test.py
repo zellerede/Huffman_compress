@@ -29,9 +29,8 @@ class TestHuffman(unittest.TestCase):
 			print "%r:%s\t\t" %(x,weight),
 		print
 		H.getCodes(letters)
-		for x in text: print H.codes[x],
-		#encoded = sum([H.codes[x] for x in text], H.Bitarray())
-		#print encoded
+		encoded = sum([H.codes[x] for x in text], H.Bitarray())
+		print encoded
 
 text = '''
 The Zen of Python, by Tim Peters
@@ -60,4 +59,4 @@ Namespaces are one honking great idea -- let's do more of those!
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(exit=False)
